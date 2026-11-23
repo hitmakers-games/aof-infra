@@ -720,6 +720,8 @@ resource "kubernetes_ingress_v1" "frontend" {
 module "jenkins" {
   source = "../../modules/jenkins"
 
+  github_proxy_url = "http://aof-agent-vpn.aof-agent-network.svc.cluster.local:8888"
+
   # Preserve the worker policy used by the existing successful build jobs.
   prefer_regular_build_agents = true
 

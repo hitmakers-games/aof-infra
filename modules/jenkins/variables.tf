@@ -10,6 +10,12 @@ variable "extra_job_scripts" {
   default     = []
 }
 
+variable "github_proxy_url" {
+  description = "HTTP CONNECT proxy for GitHub Git operations. Empty keeps the direct route."
+  type        = string
+  default     = ""
+}
+
 variable "prefer_regular_build_agents" {
   description = "Run frontend/backend builds on regular workers with CI fallback. Database and content-manager jobs stay on dedicated CI workers."
   type        = bool

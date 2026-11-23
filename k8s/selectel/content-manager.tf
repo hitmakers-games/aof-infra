@@ -254,7 +254,7 @@ resource "kubernetes_deployment_v1" "content_manager" {
           }
 
           # Java HttpClient uses JVM proxy settings. Keep the image's memory
-          # options in JAVA_TOOL_OPTIONS and native Git's direct route intact.
+          # options in JAVA_TOOL_OPTIONS intact.
           env {
             name = "JDK_JAVA_OPTIONS"
             value = join(" ", [
@@ -262,6 +262,22 @@ resource "kubernetes_deployment_v1" "content_manager" {
               "-Dhttps.proxyPort=8888",
               "-Dhttp.nonProxyHosts=localhost|127.*|[::1]|*.svc|*.cluster.local",
             ])
+          }
+
+          # Scope native Git's proxy to GitHub; keep internal services direct.
+          env {
+            name  = "GIT_CONFIG_COUNT"
+            value = "1"
+          }
+
+          env {
+            name  = "GIT_CONFIG_KEY_0"
+            value = "http.https://github.com/.proxy"
+          }
+
+          env {
+            name  = "GIT_CONFIG_VALUE_0"
+            value = "http://aof-agent-vpn.aof-agent-network.svc.cluster.local:8888"
           }
 
           env {

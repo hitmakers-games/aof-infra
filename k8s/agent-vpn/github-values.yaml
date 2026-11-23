@@ -1,0 +1,27 @@
+# Apply over the existing release values. Arrays retain all current VPN clients
+# and translation/agent hosts while adding GitHub and Jenkins checkouts.
+additionalClients:
+  - namespace: content-manager
+    podLabels:
+      app.kubernetes.io/name: aof-content-manager
+      app.kubernetes.io/instance: aof-content-manager
+  - namespace: jenkins
+    podLabels:
+      app.kubernetes.io/instance: jenkins
+      app.kubernetes.io/component: jenkins-controller
+  - namespace: jenkins
+    podLabels:
+      jenkins/jenkins-jenkins-agent: "true"
+proxyHosts:
+  - api.openai.com
+  - api.telegram.org
+  - api.ipify.org
+  - api.deepseek.com
+  - chatgpt.com
+  - auth.openai.com
+  - github.com
+  - api.github.com
+  - codeload.github.com
+  - raw.githubusercontent.com
+  - objects.githubusercontent.com
+  - release-assets.githubusercontent.com

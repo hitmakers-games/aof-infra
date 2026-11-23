@@ -1,4 +1,16 @@
 locals {
+  github_git_env = {
+    GIT_CONFIG_COUNT   = "1"
+    GIT_CONFIG_KEY_0   = "http.https://github.com/.proxy"
+    GIT_CONFIG_VALUE_0 = var.github_proxy_url
+  }
+  github_proxy_jcasc = var.github_proxy_url == "" ? {} : {
+    globalNodeProperties = [{
+      envVars = {
+        env = [for key, value in local.github_git_env : { key = key, value = value }]
+      }
+    }]
+  }
   frontend_s3_secret_name = "aof-frontend-s3"
   registry_secret_name    = "aof-registry-push"
   backend_chart_name      = "aof-back-helm-chart"
@@ -939,6 +951,7 @@ resource "helm_release" "jenkins" {
         JCasC = {
           configScripts = {
             "aof-jobs" = yamlencode({
+              jenkins = local.github_proxy_jcasc
               jobs = [
                 for script in local.job_scripts : {
                   script = script
