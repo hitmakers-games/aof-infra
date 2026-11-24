@@ -59,9 +59,18 @@ ingress:
 podAnnotations:
   ci.aof/build: "$BUILD_ID"
 EOF
+if [ -n "${BACKEND_CONTENT_LANGUAGES_PRELOAD:-}" ] || [ -n "${BACKEND_JAVA_OPTIONS:-}" ]; then
+  echo "extraEnv:"
+fi
+# Each preloaded language keeps ~150 MB of heap; ALL needs the 7Gi limit (heap = 75% of it).
+if [ -n "${BACKEND_CONTENT_LANGUAGES_PRELOAD:-}" ]; then
+  cat <<EOF
+  - name: APP_CONTENT_LANGUAGES_PRELOAD
+    value: "$BACKEND_CONTENT_LANGUAGES_PRELOAD"
+EOF
+fi
 if [ -n "${BACKEND_JAVA_OPTIONS:-}" ]; then
   cat <<EOF
-extraEnv:
   - name: JDK_JAVA_OPTIONS
     value: "$BACKEND_JAVA_OPTIONS"
 EOF
