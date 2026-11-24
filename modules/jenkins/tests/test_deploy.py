@@ -92,4 +92,22 @@ class DeploymentTests(unittest.TestCase):
   time.sleep(.2);self.assertIsNone(p.poll());p.send_signal(signal.SIGTERM)
   out,err=p.communicate(timeout=15);self.assertEqual(p.returncode,130,out+err);self.assertNotIn('Early failure',out)
   with self.assertRaises(ProcessLookupError):os.kill(int((self.root/'helm-pid').read_text()),0)
+class ValuesTests(unittest.TestCase):
+ def render(self,**extra):
+  env=dict(os.environ,IMAGE_DIGEST='sha256:'+'a'*64,DB_SECRET='db',BUILD_ID='run-1')
+  for k in ['NAMESPACE','DB_CLUSTER','IMAGE_REPOSITORY','IMAGE_TAG','ADMIN_PVC','SPRING_PROFILE','BACKEND_MEMORY_REQUEST','BACKEND_MEMORY_LIMIT','STARTUP_FAILURE_THRESHOLD','HOST','LEGACY_HOST','TLS_SECRET','LEGACY_TLS_SECRET']:env[k]='test'
+  for k in ['BACKEND_CONTENT_LANGUAGES_PRELOAD','BACKEND_JAVA_OPTIONS']:env.pop(k,None)
+  env.update(extra)
+  r=subprocess.run(['bash',str(TOOLS/'values.sh')],env=env,capture_output=True,text=True,timeout=10)
+  self.assertEqual(r.returncode,0,r.stderr);return r.stdout
+ def test_preload_and_java_options_share_one_env_list(self):
+  out=self.render(BACKEND_CONTENT_LANGUAGES_PRELOAD='ALL',BACKEND_JAVA_OPTIONS='-Xss64M')
+  self.assertEqual(out.count('extraEnv:'),1)
+  self.assertIn('  - name: APP_CONTENT_LANGUAGES_PRELOAD\n    value: "ALL"\n',out)
+  self.assertIn('  - name: JDK_JAVA_OPTIONS\n    value: "-Xss64M"\n',out)
+ def test_java_options_alone(self):
+  out=self.render(BACKEND_JAVA_OPTIONS='-Xss64M')
+  self.assertIn('extraEnv:\n  - name: JDK_JAVA_OPTIONS\n',out);self.assertNotIn('APP_CONTENT_LANGUAGES_PRELOAD',out)
+ def test_no_extra_env(self):
+  self.assertNotIn('extraEnv',self.render())
 if __name__=='__main__':unittest.main()
