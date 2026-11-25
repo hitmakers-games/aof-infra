@@ -24,7 +24,7 @@ resource "kubernetes_resource_quota_v1" "agent" {
       "requests.memory"      = "4Gi"
       "limits.cpu"           = "5"
       "limits.memory"        = "7Gi"
-      "requests.storage"     = "20Gi"
+      "requests.storage"     = "44Gi"
       persistentvolumeclaims = "5"
     }
   }
@@ -70,6 +70,7 @@ resource "helm_release" "agent" {
   timeout          = 360
   atomic           = true
   cleanup_on_fail  = true
+  depends_on       = [kubernetes_resource_quota_v1.agent]
 
   values = concat(
     [file("${each.value.chart}/values.yaml")],

@@ -1,6 +1,6 @@
 storage:
   className: fast.ru-7
-  size: 8Gi
+  size: 32Gi
 bootstrap:
   # Existing work is never reset. Run another explicit Job to add new clones.
   jobName: aof-agent-repositories-bootstrap-01
